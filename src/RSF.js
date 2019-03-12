@@ -130,12 +130,15 @@ class RSF extends Component {
         // })});
         
         // Set the state
-        this.setState({ users: users, items: items, loading: false });        
+        this.setState({ users: users, items: items, loading: false });  
+        
+        this.setComputer = this.setComputer.bind(this);
     }
 
     setComputer(computer) {
         // Computer is an intger >= 0
         this.setState({currentComputer: computer});
+        // Call updateScore of Computer? Ma come?
     }
 
     render() {
@@ -190,7 +193,6 @@ class RSF extends Component {
                         items={this.state.items}
                         computer={this.state.currentComputer}
                         web3={this.web3}
-                        provider={this.provider}
                     />
                 </div>
             );

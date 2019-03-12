@@ -17,22 +17,21 @@ class TableOfContents extends React.Component {
 
       this.state = {
           data: [],
+          computer: undefined,
           loading: true
       };
-
-      // this.computerContract = TruffleContract(RatingComputer);
-      // this.computerContract.setProvider(this.props.provider);
     }
 
-    async componentDidMount() {
+    async update() {
 
       const registry = this.props.registry;
       const items = this.props.items;
       const web3 = this.props.web3;
+      const computer = this.props.computer;
 
       // Retrieve RatingComputer instance
-      const computerAddress = await registry.getComputer(this.props.computer);
-      
+      const computerAddress = await registry.getComputer(computer);
+
       // Get Items info
       let p_names = [];
       let p_scores = [];
@@ -53,10 +52,13 @@ class TableOfContents extends React.Component {
         data.push(obj);
       });
 
-      this.setState({ data: data, loading: true });
+      this.setState({ data: data, computer: computer, loading: true });
     }
 
     render() {
+
+      if(this.state.computer != this.props.computer)
+        this.update();
 
       return(
         <div>

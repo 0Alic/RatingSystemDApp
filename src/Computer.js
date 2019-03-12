@@ -71,12 +71,8 @@ class Computer extends Component {
                                                     value={index}>{c}</option>
                                         );
                                     })}
-                                    <option key={10} value={10}>Finto computer</option>
                                 </Form.Control>
                             </Form.Group>
-                        </Col>
-                        <Col>
-                            <Button onClick={this.handleClick}>Update</Button> {/* Questo Bottone triggererà il refresh degli scores */}
                         </Col>
                     </Row>
                 </div>
