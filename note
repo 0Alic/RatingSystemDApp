@@ -1,0 +1,2 @@
+Se in build cambio i contratti poi devo riavviare il server di dev con npm start
+sennò sembra che questi cambiamenti non vengano notati
