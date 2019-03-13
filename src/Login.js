@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import {Button} from 'react-bootstrap';
-import {TruffleContract} from 'truffle-contract';
 
+/**
+ * This component should display a welcome message to the user if registered
+ * otherwise should display a button to register
+ * 
+ */
 class Login extends Component {
 
     constructor(props) {
@@ -15,9 +19,9 @@ class Login extends Component {
 
     async componentWillMount() {
 
-        const account = this.props.account; // Ethereum address
+        const account = this.props.account;             // Ethereum address
         const rsf = this.props.rsf;
-        const userContract = this.props.userContract;
+        const userContract = this.props.userContract;   // TruffleContract
 
         const userAddress = await rsf.getMyUserContract({from: account});
         
@@ -40,6 +44,7 @@ class Login extends Component {
             return(
                 <div>
                     Not registerd? Subscribe now!
+                    {/* TODO Aggiungere bottone di iscrizione */}
                 </div>
             );
 

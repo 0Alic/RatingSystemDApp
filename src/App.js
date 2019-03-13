@@ -13,7 +13,7 @@ class App extends Component {
     return(
       <div>
         <Container className="App">
-          {/* Here the title */}
+          {/* Title Header */}
           <Row>
               <Col>
                   <h1>Boarderline</h1>

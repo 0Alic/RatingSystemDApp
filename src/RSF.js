@@ -13,6 +13,14 @@ import Row  from 'react-bootstrap/Row';
 import Col  from 'react-bootstrap/Col';
 import TableOfContents from './TableOfContents.js';
 
+/**
+ * This component is in charge to 
+ * - initialize web3
+ * - load all the contract abstraction and create a TruffleContract
+ * - Retrieve the instances of RatingSystemFramework and Registry
+ * - right now I use "deployed", even if isn't correct if there are more of them around
+ * 
+ */
 class RSF extends Component {
 
     constructor(props) {
@@ -20,12 +28,10 @@ class RSF extends Component {
         super(props);
 
         this.state = {
-            account: 0x0,
-            users: null,
-            items: null,
             loading: true,
-            computers: undefined,
-            currentComputer: 0
+            account: 0x0,       // current Eth account
+            users: null,        // users of RSF
+            items: null         // items of RSF
         }
 
         // Init web3
@@ -90,7 +96,7 @@ class RSF extends Component {
             promises.push(this.userContract.at(u));
         });
 
-        users = await Promise.all(promises); // TruffleContract[]
+        users = await Promise.all(promises); // instance[]
 
 
         ///////////////////////////////
@@ -115,7 +121,7 @@ class RSF extends Component {
             });
         });
 
-        items = await Promise.all(promises); // TruffleContract[]
+        items = await Promise.all(promises); // instance[]
 
         ///////////////////////////////
         ///////////////////////////////
@@ -123,22 +129,10 @@ class RSF extends Component {
         // Retrieve ComputerRegistry instance
         const registryAddress = await this.rsf.computerRegistry();
         this.registry = await this.registryContract.at(registryAddress);
-
-        // let ids = await this.registry.getIds();
-        // this.setState({computers: ids.map(id => {
-        //     return this.web3.utils.toUtf8(id);
-        // })});
         
         // Set the state
-        this.setState({ users: users, items: items, loading: false });  
+        this.setState({ users: users, items: items, loading: false });
         
-        this.setComputer = this.setComputer.bind(this);
-    }
-
-    setComputer(computer) {
-        // Computer is an intger >= 0
-        this.setState({currentComputer: computer});
-        // Call updateScore of Computer? Ma come?
     }
 
     render() {
@@ -164,7 +158,8 @@ class RSF extends Component {
                         </Col>
                     </Row>
 
-                    {/* Here a couple of buttons */}
+
+                    {/* Welcome / Login form */}
                     <hr/>
                     <Row>
                         <Col>
@@ -176,16 +171,6 @@ class RSF extends Component {
                         </Col>
                     </Row>
 
-                    <Row>
-                        <Col>
-                            <Computer 
-                                rsf={this.rsf} 
-                                web3={this.web3} 
-                                provider={this.provider}
-                                parent={this} />
-                        </Col>
-                    </Row>
-
 
                     {/* Here the table to show the items */}
                     <TableOfContents 
@@ -193,6 +178,7 @@ class RSF extends Component {
                         items={this.state.items}
                         computer={this.state.currentComputer}
                         web3={this.web3}
+                        provider={this.provider}
                     />
                 </div>
             );

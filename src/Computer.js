@@ -26,28 +26,17 @@ class Computer extends Component {
         // Create RatingComputer abstraction
         this.computerContract = TruffleContract(RatingComputer);
         this.computerContract.setProvider(provider);
-
-        this.handleClick = this.handleClick.bind(this);
     }
 
     async componentWillMount() {
 
-        const rsf = this.props.rsf;
+        const registry = this.props.registry;
         const web3 = this.props.web3;
-
-        // Get ComputerRegistry instance
-        const registryAddress = await rsf.computerRegistry();
-        const registry = await this.registryContract.at(registryAddress);
 
         let ids = await registry.getIds();
         this.setState({computers: ids.map(id => {
             return web3.utils.toUtf8(id);
         })});
-    }
-
-    handleClick(e) {
-        e.preventDefault();
-        this.props.parent.setComputer(e.target.value);
     }
 
 
@@ -64,7 +53,7 @@ class Computer extends Component {
                         </Col>
                         <Col>
                             <Form.Group id="computerSelector">
-                                <Form.Control as="select" onChange={this.handleClick}>
+                                <Form.Control as="select" onChange={this.props.onComputerChange}>
                                     {this.state.computers.map((c, index) => {
                                         return(
                                             <option key={index} 
