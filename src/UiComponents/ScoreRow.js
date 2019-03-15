@@ -8,7 +8,7 @@ class ScoreRow extends React.Component {
         const loading = this.props.loading;
 
         if(loading) {
-            return(<td>Computing...</td>)
+            return(<td>...</td>)
         }
         else {
             return(<td>{data}</td>)

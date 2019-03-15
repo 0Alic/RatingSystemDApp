@@ -176,7 +176,6 @@ class RSF extends Component {
                     <TableOfContents 
                         registry={this.registry}
                         items={this.state.items}
-                        computer={this.state.currentComputer}
                         web3={this.web3}
                         provider={this.provider}
                     />
