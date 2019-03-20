@@ -19,20 +19,14 @@ class Login extends Component {
 
     async componentWillMount() {
 
-        const account = this.props.account;             // Ethereum address
-        const rsf = this.props.rsf;
-        const userContract = this.props.userContract;   // TruffleContract
+        const user = this.props.user;
+        let name = "";
 
-        const userAddress = await rsf.getMyUserContract({from: account});
-        
-        if(userAddress == 0x0) {
-            this.setState({loading: true, user: undefined});
+        if(user) {
+            name = await user.name(); 
         }
-        else {
-            const user = await userContract.at(userAddress);
-            this.name = this.props.web3.utils.toUtf8(await user.name());
-            this.setState({loading: false, user: user});
-        }
+
+        this.setState({ name: name, user: user });
     }
 
 

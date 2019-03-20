@@ -1,7 +1,6 @@
 import React from "react";
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
-import ScoreRow from "./UiComponents/ScoreRow.js";
 import Row  from 'react-bootstrap/Row';
 import Col  from 'react-bootstrap/Col';
 import Computer from './Computer';
@@ -42,10 +41,19 @@ class TableOfContents extends React.Component {
         dataField: 'score',
         text: 'Score',
         'width': "20%"
+      }, {
+        dataField: 'permission',
+        text: 'You can rate it',
+        'width': "20%"
+      }, {
+        dataField: 'deadline',
+        text: 'Until block',
+        'width': "20%"
       }];
 
+      this.permissionMap = { 0: "Yes", 1: "No", 2: "Out of date"};
+    
       this.handleComputerChange = this.handleComputerChange.bind(this);
-      this.handleRowClick = this.handleRowClick.bind(this);
     }
 
     async componentWillMount() {
@@ -58,30 +66,53 @@ class TableOfContents extends React.Component {
       const registry = this.props.registry;
       const items = this.props.items;
       const web3 = this.props.web3;
+      const userContract = this.props.userContract;
+      const user = this.props.user;
 
       // Retrieve RatingComputer instance
-      const computerAddress = await registry.getComputer(computer);
+      let computerAddress;
+      let block;
+      [computerAddress, block] = await Promise.all([registry.getComputer(computer),
+                                                        web3.eth.getBlockNumber()] );
 
       // Get Items info
+        // Promise arrays
       let p_titles = [];
       let p_scores = [];
+      let p_permissions = [];
+      let p_policies = [];
 
       items.forEach((i) => {
           
         p_titles.push(i.name());
         p_scores.push(i.computeScore(computerAddress));
+        p_permissions.push(i.checkForPermission(user.address));
+        p_policies.push(i.getPolicy(user.address));
       });
 
+        // Arrays with results
       let titles = await Promise.all(p_titles); // Names in bytes32
       let scores = await Promise.all(p_scores); // Scores
+      let permissions = await Promise.all(p_permissions); // 0 yes, 1 no, 2 out of date
+      let policies = await Promise.all(p_policies); // granted yes/no + deadline
+
+      // Build table object
       let data = []
 
       titles.forEach((t, i) => {
 
         let obj = {}
+        let p = permissions[i].toNumber();
+        let elapse = policies[i]._deadline.toNumber() - block;
+
         obj["title"] = web3.utils.toUtf8(t);
         obj["address"] = items[i].address;
         obj["score"] = scores[i].toNumber();
+        obj["permission"] = this.permissionMap[p];
+
+        if(p === 0) obj["deadline"] = elapse;
+        else obj["deadline"] = "";
+
         data.push(obj);
       });
 
@@ -96,9 +127,6 @@ class TableOfContents extends React.Component {
       this.update(computer);
     }
 
-    handleRowClick(e) {
-      console.log(e.target)
-    }
 
     render() {
 
@@ -116,32 +144,6 @@ class TableOfContents extends React.Component {
           </Row>
           
           <BootstrapTable keyField='address' data={ this.state.data } columns={ this.columns } />
-
-          {/* Table to show items */}
-          {/* <table className='table'>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.data.map((el, index) => {
-              // Questo sotto può essere un component "table row"?
-              const n = el.name;
-              const s = el.score;
-              const a = el.address;
-              return(
-                <tr onClick={this.handleRowClick} value={"row"} key={a}>
-                  <th value={"index"}>{index+1}</th>
-                  <td value={"name"} href="#">{n}</td>
-                  <ScoreRow data={s} loading={this.state.loading} />
-                </tr>
-              )              
-            })}
-           </tbody>
-          </table> */}
         </div>
       );
     }

@@ -24,7 +24,8 @@ class RSF extends Component {
             loading: true,
             account: 0x0,       // current Eth account
             users: null,        // users of RSF
-            items: null         // items of RSF
+            items: null,         // items of RSF
+            user: undefined
         }
 
     }
@@ -37,9 +38,13 @@ class RSF extends Component {
         const itemContract = this.props.itemContract;
         const registryContract = this.props.registryContract;
 
+        let account = 0x0;
+
         // Read current Ethereum account
-        web3.eth.getCoinbase((err, account) => {
-            this.setState({ account: account });
+        web3.eth.getCoinbase((err, _account) => {
+    
+            account = _account;
+            // this.setState({ account: account });
         });
 
         // Get RatingSystemFramework INSTANCE
@@ -95,9 +100,19 @@ class RSF extends Component {
         const registryAddress = await this.rsf.computerRegistry();
         this.registry = await registryContract.at(registryAddress);
         
-        // Set the state
-        this.setState({ users: users, items: items, loading: false });
         
+        ///////////////////////////////
+        ///////////////////////////////
+
+        const userAddress = await this.rsf.getMyUserContract({from: account});
+        let user = undefined;
+
+        if(userAddress !== 0x0)
+            user = await userContract.at(userAddress);
+
+        // Set the state
+        this.setState({ users: users, items: items, loading: false, user: user });
+
     }
 
     render() {
@@ -133,16 +148,22 @@ class RSF extends Component {
                     <Row>
                         <Col>
                             <Login 
-                                rsf={this.rsf} 
-                                account={this.state.account} 
-                                userContract={userContract} 
-                                web3={web3} />
+                                user={this.state.user}
+                                // rsf={this.rsf} 
+                                // account={this.state.account} 
+                                // userContract={userContract} 
+                                // web3={web3} 
+
+                                />
                         </Col>
                     </Row>
 
+                    <hr />
 
                     {/* Here the table to show the items */}
-                    <TableOfContents 
+                    <TableOfContents
+                        user={this.state.user}
+                        userContract={userContract}
                         registry={this.registry}
                         items={this.state.items}
                         web3={web3}
