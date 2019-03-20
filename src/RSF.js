@@ -1,13 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
 import Login from './Login.js';
-import Computer from './Computer';
-import TruffleContract from 'truffle-contract';
-import RatingSystemFramework from './build/contracts/RatingSystemFramework.json';
-import User from './build/contracts/User.json';
-import Item from './build/contracts/Item.json';
-import ComputerRegistry from './build/contracts/ComputerRegistry.json'
-import Web3 from 'web3'
 import Container  from 'react-bootstrap/Container';
 import Row  from 'react-bootstrap/Row';
 import Col  from 'react-bootstrap/Col';
@@ -34,51 +27,23 @@ class RSF extends Component {
             items: null         // items of RSF
         }
 
-        // Init web3
-        if (typeof web3 != 'undefined') {
-
-            this.provider = window.ethereum;
-            this.web3 = new Web3(this.provider);
-            try {
-                window.ethereum.enable().then(async () => {
-                    console.log("Privacy ok");
-                });
-            }
-            catch (error) {
-                console.log("New privacy feature testing, error");
-                console.log(error);
-            }
-        } else {
-            this.provider = new Web3.providers.HttpProvider('http://localhost:8545');
-            this.web3 = new Web3(this.provider);
-        }        
-
-        // Create RSF abstraction
-        this.rsfContract = TruffleContract(RatingSystemFramework);
-        this.rsfContract.setProvider(this.provider);
-
-        // Create Registry abstraction
-        this.registryContract = TruffleContract(ComputerRegistry);
-        this.registryContract.setProvider(this.provider);
-
-        // Create User abstraction
-        this.userContract = TruffleContract(User);
-        this.userContract.setProvider(this.provider);
-
-        // Create Item abstraction
-        this.itemContract = TruffleContract(Item);
-        this.itemContract.setProvider(this.provider);
     }
 
     async componentWillMount() {
 
+        const web3 = this.props.web3;
+        const rsfContract = this.props.rsfContract;
+        const userContract = this.props.userContract;
+        const itemContract = this.props.itemContract;
+        const registryContract = this.props.registryContract;
+
         // Read current Ethereum account
-        this.web3.eth.getCoinbase((err, account) => {
+        web3.eth.getCoinbase((err, account) => {
             this.setState({ account: account });
         });
 
         // Get RatingSystemFramework INSTANCE
-        this.rsf = await this.rsfContract.deployed();
+        this.rsf = await rsfContract.deployed();
         
 
         ///////////////////////////////
@@ -93,7 +58,7 @@ class RSF extends Component {
         let items = [];
 
         usersAddresses.forEach(u => {
-            promises.push(this.userContract.at(u));
+            promises.push(userContract.at(u));
         });
 
         users = await Promise.all(promises); // instance[]
@@ -117,7 +82,7 @@ class RSF extends Component {
         itemAddresses.forEach((list) => {
 
             list.forEach((i) => {
-                promises.push(this.itemContract.at(i));
+                promises.push(itemContract.at(i));
             });
         });
 
@@ -128,7 +93,7 @@ class RSF extends Component {
 
         // Retrieve ComputerRegistry instance
         const registryAddress = await this.rsf.computerRegistry();
-        this.registry = await this.registryContract.at(registryAddress);
+        this.registry = await registryContract.at(registryAddress);
         
         // Set the state
         this.setState({ users: users, items: items, loading: false });
@@ -149,6 +114,10 @@ class RSF extends Component {
         }
         else {
 
+            const web3 = this.props.web3;
+            const provider = this.props.provider;
+            const userContract = this.props.userContract;
+
             return(
                 <div>                
                     {/* Here show the current Eth account */}
@@ -166,8 +135,8 @@ class RSF extends Component {
                             <Login 
                                 rsf={this.rsf} 
                                 account={this.state.account} 
-                                userContract={this.userContract} 
-                                web3={this.web3} />
+                                userContract={userContract} 
+                                web3={web3} />
                         </Col>
                     </Row>
 
@@ -176,8 +145,8 @@ class RSF extends Component {
                     <TableOfContents 
                         registry={this.registry}
                         items={this.state.items}
-                        web3={this.web3}
-                        provider={this.provider}
+                        web3={web3}
+                        provider={provider}
                     />
                 </div>
             );
