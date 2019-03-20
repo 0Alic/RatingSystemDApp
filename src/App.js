@@ -21,6 +21,10 @@ class App extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      account: undefined
+    }
+
     // Init web3
     if (typeof web3 != 'undefined') {
 
@@ -58,37 +62,60 @@ class App extends Component {
 
   }
 
+  componentWillMount() {
+
+    // Read current Ethereum account
+    this.web3.eth.getCoinbase(async (err, account) => {
+
+      this.rsf = await this.rsfContract.deployed();
+      const address = await this.rsf.getMyUserContract({from: account});
+      this.user = undefined;
+
+      if(address !== 0x0)
+          this.user = await this.userContract.at(address);
+
+      this.setState({ account: account });
+    });
+  }
+
   render() {
 
-    return(
-      <div>
+    if(this.user)
+      return(
 
-        <SearchBar 
-            itemContract={this.itemContract}
-        />
+        <div>
 
-        <Container className="App">
-          {/* Title Header */}
-          <Row>
-              <Col>
-                  <h1>Boarderline</h1>
-                  <h3>Board games recommended by board gamers</h3>
-              </Col>
-          </Row>
-
-          {/* Here listing the information provided by Web3 */}
-          <RSF  web3={this.web3}
-                provider={this.provider}
-                rsfContract={this.rsfContract}
-                registryContract={this.registryContract}
-                userContract={this.userContract}
-                itemContract={this.itemContract}
+          <SearchBar 
+              itemContract={this.itemContract}
+              user={this.user}
           />
 
-        </Container>
-  
-      </div>
-    );
+          <Container className="App">
+            {/* Title Header */}
+            <Row>
+                <Col>
+                    <h1>Boarderline</h1>
+                    <h3>Board games recommended by board gamers</h3>
+                </Col>
+            </Row>
+
+            {/* Here listing the information provided by Web3 */}
+            <RSF  web3={this.web3}
+                  provider={this.provider}
+                  rsf={this.rsf}
+                  user={this.user}
+                  account={this.state.account}
+                  registryContract={this.registryContract}
+                  userContract={this.userContract}
+                  itemContract={this.itemContract}
+            />
+
+          </Container>
+    
+        </div>
+      );
+      else
+        return(<div>Loading...</div>)
   }
 }
 

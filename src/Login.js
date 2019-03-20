@@ -26,7 +26,7 @@ class Login extends Component {
             name = await user.name(); 
         }
 
-        this.setState({ name: name, user: user });
+        this.setState({ name: this.props.web3.utils.toUtf8(name), user: user });
     }
 
 
@@ -34,7 +34,6 @@ class Login extends Component {
 
         if(!this.state.user) {
             // User not registered and/or still loading information
-
             return(
                 <div>
                     Not registerd? Subscribe now!
@@ -47,7 +46,7 @@ class Login extends Component {
 
             return(
                 <div>
-                    <h2>Welcome back {this.name}!</h2>
+                    <h2>Welcome back {this.state.name}!</h2>
                 </div>
             );
     }

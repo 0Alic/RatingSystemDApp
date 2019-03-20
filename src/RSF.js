@@ -22,39 +22,23 @@ class RSF extends Component {
 
         this.state = {
             loading: true,
-            account: 0x0,       // current Eth account
             users: null,        // users of RSF
-            items: null,         // items of RSF
-            user: undefined
+            items: null         // items of RSF
         }
 
     }
 
     async componentWillMount() {
 
-        const web3 = this.props.web3;
-        const rsfContract = this.props.rsfContract;
         const userContract = this.props.userContract;
         const itemContract = this.props.itemContract;
         const registryContract = this.props.registryContract;
-
-        let account = 0x0;
-
-        // Read current Ethereum account
-        web3.eth.getCoinbase((err, _account) => {
-    
-            account = _account;
-            // this.setState({ account: account });
-        });
-
-        // Get RatingSystemFramework INSTANCE
-        this.rsf = await rsfContract.deployed();
-        
+        const rsf = this.props.rsf;
 
         ///////////////////////////////
         ///////////////////////////////
 
-        const usersAddresses = await this.rsf.getUsers(); // address[]
+        const usersAddresses = await rsf.getUsers(); // address[]
 
         // Retrieve user contracts
         let promises = [];
@@ -97,21 +81,15 @@ class RSF extends Component {
         ///////////////////////////////
 
         // Retrieve ComputerRegistry instance
-        const registryAddress = await this.rsf.computerRegistry();
+        const registryAddress = await rsf.computerRegistry();
         this.registry = await registryContract.at(registryAddress);
         
         
         ///////////////////////////////
         ///////////////////////////////
 
-        const userAddress = await this.rsf.getMyUserContract({from: account});
-        let user = undefined;
-
-        if(userAddress !== 0x0)
-            user = await userContract.at(userAddress);
-
         // Set the state
-        this.setState({ users: users, items: items, loading: false, user: user });
+        this.setState({ users: users, items: items, loading: false });
 
     }
 
@@ -131,6 +109,7 @@ class RSF extends Component {
 
             const web3 = this.props.web3;
             const provider = this.props.provider;
+            const user = this.props.user;
             const userContract = this.props.userContract;
 
             return(
@@ -138,7 +117,7 @@ class RSF extends Component {
                     {/* Here show the current Eth account */}
                     <Row>
                         <Col>
-                            Account: {this.state.account}
+                            Account: {this.props.account}
                         </Col>
                     </Row>
 
@@ -148,11 +127,10 @@ class RSF extends Component {
                     <Row>
                         <Col>
                             <Login 
-                                user={this.state.user}
-                                // rsf={this.rsf} 
-                                // account={this.state.account} 
-                                // userContract={userContract} 
-                                // web3={web3} 
+                                user={user}
+                                account={this.state.account} 
+                                userContract={userContract} 
+                                web3={web3} 
 
                                 />
                         </Col>
@@ -162,7 +140,7 @@ class RSF extends Component {
 
                     {/* Here the table to show the items */}
                     <TableOfContents
-                        user={this.state.user}
+                        user={user}
                         userContract={userContract}
                         registry={this.registry}
                         items={this.state.items}

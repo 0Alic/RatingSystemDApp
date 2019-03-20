@@ -9,31 +9,41 @@ import Modal from 'react-bootstrap/Modal'
 class ItemModal extends React.Component {
 
     render() {
-        return (
-            <Modal
-                {...this.props}
-                size="lg"
-                aria-labelledby="contained-modal-title-vcenter"
-                centered >
-                
-                <Modal.Header closeButton>
-                    <Modal.Title id="contained-modal-title-vcenter">
-                        Modal heading
-              </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <h4>Centered Modal</h4>
-                    <p>
-                        Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-                        dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
-                        ac consectetur ac, vestibulum at eros.
-                    </p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button onClick={this.props.onHide}>Close</Button>
-                </Modal.Footer>
-            </Modal>
-        );
+
+        let data = this.props.data;
+
+        if(data) 
+            return (
+                <Modal
+                    onHide={this.props.onHide}
+                    show={this.props.show}
+                    size="lg"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered >
+                    
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">
+                            Item detailed information
+                </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>{data["name"] /* trasformalo in stringa*/}</h4> 
+                        <p>
+                            Owner: {data["owner"]}
+                        </p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.props.onHide}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            );
+        else
+            return (
+                <Modal onHide={this.props.onHide}
+                        show={this.props.show}>
+                    Information not found
+                </Modal>
+            );
     }
 }
 
@@ -42,7 +52,7 @@ class SearchBar extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { modalShow: false };
+        this.state = { modalShow: false, modalData: undefined };
     }
 
     async searchItem(e) {
@@ -50,7 +60,8 @@ class SearchBar extends React.Component {
         e.preventDefault();
         const form = e.currentTarget;
         const address = form.textbar.value;
-        const itemContract = this.props.itemContract;        
+        const user = this.props.user;
+        const itemContract = this.props.itemContract;
 
         if(address === "") {
             alert("Empty field");
@@ -60,16 +71,22 @@ class SearchBar extends React.Component {
         try {
 
             const item = await itemContract.at(address);
-            // Load item data and set state
-            let promises;
 
-            promises.push(item.name());
+            // Load item data and set state
+            let promises = [];
+            let data = {};
+
             promises.push(item.owner());
             promises.push(item.name());
-            
-            this.setState({ modalShow: true });
+            promises.push(item.getAllRatings());
+            promises.push(item.getPolicy(user.address));
+            promises.push(item.checkForPermission(user.address));
+            [data["owner"], data["name"], data["ratingArray"], data["policy"], data["permissions"]] = await Promise.all(promises);
+
+            this.setState({ modalShow: true, modalData: data });
         }
         catch(e) {
+            console.log(e)
             alert("Invalid address");
         }
 
@@ -102,6 +119,7 @@ class SearchBar extends React.Component {
 
                 <ItemModal show={this.state.modalShow}
                             onHide={modalClose}
+                            data={this.state.modalData}
                 />
             </div>
         );
