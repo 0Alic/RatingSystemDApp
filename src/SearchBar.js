@@ -7,6 +7,10 @@ import Navbar from 'react-bootstrap/Navbar';
 import Modal from 'react-bootstrap/Modal'
 import BootstrapTable from 'react-bootstrap-table-next';
 import AddRateForm from './AddRateForm.js';
+import Nav from 'react-bootstrap/Nav';
+import NavItem from 'react-bootstrap/NavItem';
+import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
+import { LinkContainer } from "react-router-bootstrap";
 
 /**
  * This component is a modal showing the information concerning an item
@@ -151,8 +155,9 @@ class SearchBar extends React.Component {
 
         return (
             <div>
+                {/* Image + title */}
                 <Navbar bg="dark" variant="dark">
-                    <Navbar.Brand href="#home">
+                    <Navbar.Brand>
                         <img
                             alt=""
                             src={logo}
@@ -162,6 +167,24 @@ class SearchBar extends React.Component {
                         />
                         {' Boarderline '}
                     </Navbar.Brand>
+
+                    {/* Personal area link */}
+                    <Router>
+                        {/* Render a Router where the app contains routes */}
+                        <Navbar.Collapse id="basic-navbar-nav">
+                            <Nav className="mr-auto">
+                                <Nav.Link to="" variant="outline-light" href="/userArea">Personal Area</Nav.Link>
+                            </Nav>
+
+                            {/* TODO FAI MEGLIO QUESTO */}
+                            <Route path="/userArea" component={Prova}></Route> 
+
+                        </Navbar.Collapse>
+                    </Router>
+
+                    
+
+                    {/* Search item */}
                     <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
                         <Form inline onSubmit={e => this.searchItem(e)}>
                             <FormControl id="textbar" type="text" placeholder="Search item by address" className="mr-sm-2" />
@@ -177,8 +200,18 @@ class SearchBar extends React.Component {
                             user={this.props.user}
                             account={this.props.account}
                 />
+
+
             </div>
         );
+    }
+}
+
+class Prova extends React.Component {
+
+    render() {
+
+        return(<div><h1>ASDHJSVAJV</h1></div>);
     }
 }
 
