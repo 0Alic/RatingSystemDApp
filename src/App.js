@@ -16,6 +16,12 @@ import ComputerRegistry from './build/contracts/ComputerRegistry.json';
 import TruffleContract from 'truffle-contract';
 import Web3 from 'web3';
 
+/**
+ * The topmost component
+ * - initialize web3
+ * - load all the contract abstraction and create a TruffleContract
+ * 
+ */
 class App extends Component {
 
   constructor(props) {

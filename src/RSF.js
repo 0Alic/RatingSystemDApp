@@ -8,9 +8,6 @@ import TableOfContents from './TableOfContents.js';
 
 /**
  * This component is in charge to 
- * - initialize web3
- * - load all the contract abstraction and create a TruffleContract
- * - Retrieve the instances of RatingSystemFramework and Registry
  * - right now I use "deployed", even if isn't correct if there are more of them around
  * 
  */

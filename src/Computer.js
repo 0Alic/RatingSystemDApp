@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import {Button} from 'react-bootstrap';
 import TruffleContract from 'truffle-contract';
 import ComputerRegistry from './build/contracts/ComputerRegistry.json'
 import RatingComputer from './build/contracts/RatingComputer.json'
@@ -7,7 +6,11 @@ import Form from 'react-bootstrap/Form';
 import Row  from 'react-bootstrap/Row';
 import Col  from 'react-bootstrap/Col';
 
-
+/**
+ * This component is in charge to let the user select the score
+ * computation formula.
+ * 
+ */
 class Computer extends Component {
 
     constructor(props) {

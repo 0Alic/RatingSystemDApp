@@ -6,7 +6,12 @@ import Button from 'react-bootstrap/Button';
 import Navbar from 'react-bootstrap/Navbar';
 import Modal from 'react-bootstrap/Modal'
 import BootstrapTable from 'react-bootstrap-table-next';
+import AddRateForm from './AddRateForm.js';
 
+/**
+ * This component is a modal showing the information concerning an item
+ * 
+ */
 class ItemModal extends React.Component {
 
     constructor(props) {
@@ -27,16 +32,6 @@ class ItemModal extends React.Component {
                 return { width: '50%', textAlign: 'center' };
             }
         }];        
-    }
-
-    async addRate(event, item) {
-
-        const user = this.props.user;
-        const score = event.currentTarget.score.value;
-        const account = this.props.account;
-        
-        event.preventDefault();
-        await user.addRate(item, score, {from: account});
     }
 
     render() {
@@ -64,14 +59,10 @@ class ItemModal extends React.Component {
                         <BootstrapTable keyField='block' data={ this.props.tableData } columns={ this.columns } />
                     </Modal.Body>
                     <Modal.Footer>
-                        <Form inline onSubmit={e => this.addRate(e, data["address"])}>
-                            <Form.Control id="score" as="select" className="mr-sm-2">
-                                {[1,2,3,4,5,6,7,8,9,10].map(n => {
-                                    return(<option key={n} value={n}>{n}</option>);
-                                })}
-                            </Form.Control>
-                            <Button type="submit">Leave a rating</Button>
-                        </Form>
+                        <AddRateForm display={data["permissions"] === 0}
+                                        item={data["address"]}
+                                        account={this.props.account}
+                                        user={this.props.user} />
                         <Button onClick={this.props.onHide}>Close</Button>
                     </Modal.Footer>
                 </Modal>
@@ -87,6 +78,12 @@ class ItemModal extends React.Component {
     }
 }
 
+
+/**
+ * This component looks up for an item, given its address, and displays the
+ * item information
+ * 
+ */
 class SearchBar extends React.Component {
 
     constructor(props) {
@@ -102,6 +99,7 @@ class SearchBar extends React.Component {
         e.preventDefault();
         const form = e.currentTarget;
         const address = form.textbar.value;
+        const user = this.props.user;
         const itemContract = this.props.itemContract;
 
         if(address === "") {
@@ -123,8 +121,9 @@ class SearchBar extends React.Component {
             promises.push(item.owner());
             promises.push(item.name());
             promises.push(item.getAllRatings());
-
-            [data["owner"], data["name"], ratings] = await Promise.all(promises);
+            promises.push(item.checkForPermission(user.address));
+            
+            [data["owner"], data["name"], ratings, data["permissions"]] = await Promise.all(promises);
         
             data["name"] = web3.utils.toUtf8(data["name"]);
             data["address"] = address;
@@ -165,7 +164,7 @@ class SearchBar extends React.Component {
                     </Navbar.Brand>
                     <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
                         <Form inline onSubmit={e => this.searchItem(e)}>
-                            <FormControl id="textbar" type="text" placeholder="Search by address" className="mr-sm-2" />
+                            <FormControl id="textbar" type="text" placeholder="Search item by address" className="mr-sm-2" />
                             <Button variant="outline-light" type="submit">Search</Button>
                         </Form>
                     </Navbar.Collapse>
