@@ -89,6 +89,7 @@ class App extends Component {
               itemContract={this.itemContract}
               user={this.user}
               web3={this.web3}
+              account={this.state.account}
           />
 
           <Container className="App">
