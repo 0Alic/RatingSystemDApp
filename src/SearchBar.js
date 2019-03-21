@@ -5,14 +5,37 @@ import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import Navbar from 'react-bootstrap/Navbar';
 import Modal from 'react-bootstrap/Modal'
+import BootstrapTable from 'react-bootstrap-table-next';
 
 class ItemModal extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.columns = [{
+            dataField: 'score',
+            text: 'Score',
+            'width': "20%"
+        }, {
+            dataField: 'block',
+            text: 'At block',
+            'width': "20%"
+        }, {
+            dataField: 'rater',
+            text: 'Rater',
+            headerStyle: (column, colIndex) => {
+                return { width: '50%', textAlign: 'center' };
+            }
+        }];        
+    }
 
     render() {
 
         let data = this.props.data;
 
-        if(data) 
+        if(data) {
+
+            console.log(data["ratingArray"])
             return (
                 <Modal
                     onHide={this.props.onHide}
@@ -24,19 +47,21 @@ class ItemModal extends React.Component {
                     <Modal.Header closeButton>
                         <Modal.Title id="contained-modal-title-vcenter">
                             Item detailed information
-                </Modal.Title>
+                        </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <h4>{data["name"] /* trasformalo in stringa*/}</h4> 
+                        <h4>{data["name"]}</h4> 
                         <p>
                             Owner: {data["owner"]}
                         </p>
+                        <BootstrapTable keyField='block' data={ this.props.tableData } columns={ this.columns } />
                     </Modal.Body>
                     <Modal.Footer>
                         <Button onClick={this.props.onHide}>Close</Button>
                     </Modal.Footer>
                 </Modal>
             );
+        }
         else
             return (
                 <Modal onHide={this.props.onHide}
@@ -52,7 +77,9 @@ class SearchBar extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { modalShow: false, modalData: undefined };
+        this.state = { modalShow: false, 
+                        modalData: undefined,
+                        tableData: undefined };
     }
 
     async searchItem(e) {
@@ -75,15 +102,27 @@ class SearchBar extends React.Component {
             // Load item data and set state
             let promises = [];
             let data = {};
+            let ratings = [];
+            let tableData = [];
 
             promises.push(item.owner());
             promises.push(item.name());
             promises.push(item.getAllRatings());
             promises.push(item.getPolicy(user.address));
             promises.push(item.checkForPermission(user.address));
-            [data["owner"], data["name"], data["ratingArray"], data["policy"], data["permissions"]] = await Promise.all(promises);
+            [data["owner"], data["name"], ratings, data["policy"], data["permissions"]] = await Promise.all(promises);
+        
+            data["name"] = this.props.web3.utils.toUtf8(data["name"]);
 
-            this.setState({ modalShow: true, modalData: data });
+            ratings._scores.forEach((s, i) => {
+                let o = {};
+                o["score"] = s.toNumber();
+                o["block"] = ratings._blocks[i].toNumber();
+                o["rater"] = ratings._raters[i];
+                tableData.push(o);
+            });
+
+            this.setState({ modalShow: true, modalData: data, tableData: tableData });
         }
         catch(e) {
             console.log(e)
@@ -120,6 +159,7 @@ class SearchBar extends React.Component {
                 <ItemModal show={this.state.modalShow}
                             onHide={modalClose}
                             data={this.state.modalData}
+                            tableData={this.state.tableData}
                 />
             </div>
         );

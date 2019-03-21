@@ -88,6 +88,7 @@ class App extends Component {
           <SearchBar 
               itemContract={this.itemContract}
               user={this.user}
+              web3={this.web3}
           />
 
           <Container className="App">

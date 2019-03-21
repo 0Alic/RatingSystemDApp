@@ -47,7 +47,7 @@ class TableOfContents extends React.Component {
         'width': "20%"
       }, {
         dataField: 'deadline',
-        text: 'Until block',
+        text: 'For more blocks',
         'width': "20%"
       }];
 
