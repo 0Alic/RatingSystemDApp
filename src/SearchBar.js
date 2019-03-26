@@ -60,10 +60,10 @@ class ItemModal extends React.Component {
                     <Modal.Body>
                         <h4>Owner: {data["owner"]}</h4>
                         <h4>Rating table:</h4>
-                        <BootstrapTable keyField='block' data={ this.props.tableData } columns={ this.columns } />
+                        <BootstrapTable keyField='block' data={ this.props.itemTableData } columns={ this.columns } />
                     </Modal.Body>
                     <Modal.Footer>
-                        <AddRateForm display={data["permissions"] === 0}
+                        <AddRateForm display={data["permissions"].toNumber() === 0}
                                         item={data["address"]}
                                         account={this.props.account}
                                         user={this.props.user} />
@@ -82,6 +82,71 @@ class ItemModal extends React.Component {
     }
 }
 
+class UserModal extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.columns = [{
+            dataField: 'rated',
+            text: 'Rated',
+            headerStyle: (column, colIndex) => {
+                return { width: '55%', textAlign: 'center' };
+            },
+        }, {
+            dataField: 'score',
+            text: 'Score',
+            'width': "20%"
+        }, {
+            dataField: 'block',
+            text: 'At block',
+            'width': "20%" 
+        }];        
+    }
+
+    
+    render() {
+
+        let data = this.props.data;
+
+        if(data) {
+
+            return (
+                <Modal
+                    onHide={this.props.onHide}
+                    show={this.props.show}
+                    size="lg"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered >
+                    
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">
+                            {data["name"] + "'s Profile"}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Your items:</h4>
+                        {data["items"].map(i => {
+                                return (<p key={i}>{i}</p>);
+                            })}
+                        <h4>Rating table:</h4>
+                        <BootstrapTable keyField='block' data={ this.props.userTableData } columns={ this.columns } />
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.props.onHide}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            );
+        }
+        else
+            return (
+                <Modal onHide={this.props.onHide}
+                        show={this.props.show}>
+                    Information not found
+                </Modal>
+            ); 
+    }
+}
 
 /**
  * This component looks up for an item, given its address, and displays the
@@ -93,9 +158,43 @@ class SearchBar extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { modalShow: false, 
-                        modalData: undefined,
-                        tableData: undefined };
+        this.state = { 
+                        userModalShow: false,
+                        itemModalShow: false, 
+                        userModalData: undefined,
+                        itemModalData: undefined,
+                        userTableData: undefined,
+                        itemTableData: undefined };
+    }
+
+    async viewProfile(e) {
+
+        e.preventDefault();
+        
+        // Load user information
+        const user = this.props.user;
+        const web3 = this.props.web3;
+        let data = {}
+        let promises = []
+        let ratings = []
+        let userTableData = [];
+
+        promises.push(user.name());
+        promises.push(user.getItems());
+        promises.push(user.getAllRatings());
+
+        [data["name"], data["items"], ratings] = await Promise.all(promises);
+        data["name"] = web3.utils.toUtf8(data["name"]);
+
+        ratings._scores.forEach((s, i) => {
+            let o = {};
+            o["rated"] = ratings._rated[i];
+            o["score"] = s.toNumber();
+            o["block"] = ratings._blocks[i].toNumber();
+            userTableData.push(o);
+        });
+
+        this.setState({ userModalShow: true, userModalData: data, userTableData: userTableData });
     }
 
     async searchItem(e) {
@@ -120,7 +219,7 @@ class SearchBar extends React.Component {
             let promises = [];
             let data = {};
             let ratings = [];
-            let tableData = [];
+            let itemTableData = [];
 
             promises.push(item.owner());
             promises.push(item.name());
@@ -137,10 +236,10 @@ class SearchBar extends React.Component {
                 o["score"] = s.toNumber();
                 o["block"] = ratings._blocks[i].toNumber();
                 o["rater"] = ratings._raters[i];
-                tableData.push(o);
+                itemTableData.push(o);
             });
 
-            this.setState({ modalShow: true, modalData: data, tableData: tableData });
+            this.setState({ itemModalShow: true, itemModalData: data, itemTableData: itemTableData });
         }
         catch(e) {
             console.log(e)
@@ -151,8 +250,12 @@ class SearchBar extends React.Component {
 
     render() {
 
-        let modalClose = () => this.setState({ modalShow: false });
-
+        let itemModalClose = () => this.setState({ itemModalShow: false, 
+                                                    itemModalData: undefined,
+                                                    itemTableData: undefined });
+        let userModalClose = () => this.setState({ userModalShow: false, 
+                                                    userModalData: undefined,
+                                                    userTableData: undefined });
         return (
             <div>
                 {/* Image + title */}
@@ -169,18 +272,18 @@ class SearchBar extends React.Component {
                     </Navbar.Brand>
 
                     {/* Personal area link */}
-                    <Router>
+                    {/* <Router> */}
                         {/* Render a Router where the app contains routes */}
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="mr-auto">
-                                <Nav.Link to="" variant="outline-light" href="/userArea">Personal Area</Nav.Link>
+                                <Nav.Link onClick={e => this.viewProfile(e)} variant="outline-light">Personal Area</Nav.Link>
                             </Nav>
 
                             {/* TODO FAI MEGLIO QUESTO */}
-                            <Route path="/userArea" component={Prova}></Route> 
+                            {/* <Route path="/userArea" component={Prova}></Route>  */}
 
                         </Navbar.Collapse>
-                    </Router>
+                    {/* </Router> */}
 
                     
 
@@ -193,25 +296,25 @@ class SearchBar extends React.Component {
                     </Navbar.Collapse>
                 </Navbar>
 
-                <ItemModal show={this.state.modalShow}
-                            onHide={modalClose}
-                            data={this.state.modalData}
-                            tableData={this.state.tableData}
+                <ItemModal show={this.state.itemModalShow}
+                            onHide={itemModalClose}
+                            data={this.state.itemModalData}
+                            itemTableData={this.state.itemTableData}
                             user={this.props.user}
                             account={this.props.account}
                 />
 
+                <UserModal show={this.state.userModalShow}
+                            onHide={userModalClose} 
+                            user={this.props.user}
+                            data={this.state.userModalData}
+                            userTableData={this.state.userTableData}
+                />
+
+
 
             </div>
         );
-    }
-}
-
-class Prova extends React.Component {
-
-    render() {
-
-        return(<div><h1>ASDHJSVAJV</h1></div>);
     }
 }
 
