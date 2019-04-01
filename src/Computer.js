@@ -52,7 +52,7 @@ class Computer extends Component {
 
                     <Row>
                         <Col>
-                            <Form.Label>Select your score computation formula</Form.Label>
+                            <Form.Label><b>Select your score computation formula</b></Form.Label>
                         </Col>
                         <Col>
                             <Form.Group id="computerSelector">

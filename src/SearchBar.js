@@ -5,111 +5,51 @@ import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import Navbar from 'react-bootstrap/Navbar';
 import Modal from 'react-bootstrap/Modal'
-import BootstrapTable from 'react-bootstrap-table-next';
-import AddRateForm from './AddRateForm.js';
+// import BootstrapTable from 'react-bootstrap-table-next';
+// import AddRateForm from './AddRateForm.js';
 import Nav from 'react-bootstrap/Nav';
-import NavItem from 'react-bootstrap/NavItem';
-import { BrowserRouter as Router, Link, Route } from 'react-router-dom';
-import { LinkContainer } from "react-router-bootstrap";
+import ItemModal from './ItemModal.js';
+import UserModal from './UserModal.js';
+
 
 /**
- * This component is a modal showing the information concerning an item
+ * This component shows the form to upload a new item
  * 
  */
-class ItemModal extends React.Component {
+
+class DeployModal extends React.Component {
 
     constructor(props) {
         super(props);
-
-        this.columns = [{
-            dataField: 'score',
-            text: 'Score',
-            'width': "20%"
-        }, {
-            dataField: 'block',
-            text: 'At block',
-            'width': "20%"
-        }, {
-            dataField: 'rater',
-            text: 'Rater',
-            headerStyle: (column, colIndex) => {
-                return { width: '50%', textAlign: 'center' };
-            }
-        }];        
+        this.i = 0; // to Suppress warning
     }
 
-    render() {
+    async createItem(e) {
 
-        let data = this.props.data;
+        e.preventDefault();
 
-        if(data) {
+        const title = e.currentTarget.itemTitle.value;
+        const user = this.props.user;
+        const web3 = this.props.web3;
+        const account = this.props.account;
 
-            return (
-                <Modal
-                    onHide={this.props.onHide}
-                    show={this.props.show}
-                    size="lg"
-                    aria-labelledby="contained-modal-title-vcenter"
-                    centered >
-                    
-                    <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title-vcenter">
-                            {data["name"]}
-                        </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <h4>Owner: {data["owner"]}</h4>
-                        <h4>Rating table:</h4>
-                        <BootstrapTable keyField='block' data={ this.props.itemTableData } columns={ this.columns } />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <AddRateForm display={data["permissions"].toNumber() === 0}
-                                        item={data["address"]}
-                                        account={this.props.account}
-                                        user={this.props.user} />
-                        <Button onClick={this.props.onHide}>Close</Button>
-                    </Modal.Footer>
-                </Modal>
-            );
+        if(title === "") {
+            alert("Blank game title");
+            return;
         }
-        else
-            return (
-                <Modal onHide={this.props.onHide}
-                        show={this.props.show}>
-                    Information not found
-                </Modal>
-            );
-    }
-}
 
-class UserModal extends React.Component {
+        if(title.length > 32) {
+            alert("Game title too long");
+            return;
+        }
 
-    constructor(props) {
-        super(props);
-
-        this.columns = [{
-            dataField: 'rated',
-            text: 'Rated',
-            headerStyle: (column, colIndex) => {
-                return { width: '55%', textAlign: 'center' };
-            },
-        }, {
-            dataField: 'score',
-            text: 'Score',
-            'width': "20%"
-        }, {
-            dataField: 'block',
-            text: 'At block',
-            'width': "20%" 
-        }];        
+        // Deploy Item
+        await user.createItem(web3.utils.fromUtf8(title), {from: account});
     }
 
-    
     render() {
 
-        let data = this.props.data;
-
-        if(data) {
+        if(true) {
 
             return (
                 <Modal
@@ -121,16 +61,15 @@ class UserModal extends React.Component {
                     
                     <Modal.Header closeButton>
                         <Modal.Title id="contained-modal-title-vcenter">
-                            {data["name"] + "'s Profile"}
+                            Add a new board game to this list
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <h4>Your items:</h4>
-                        {data["items"].map(i => {
-                                return (<p key={i}>{i}</p>);
-                            })}
-                        <h4>Rating table:</h4>
-                        <BootstrapTable keyField='block' data={ this.props.userTableData } columns={ this.columns } />
+                        <h4>Choose a name</h4>
+                        <Form onSubmit={e => this.createItem(e)}>
+                            <Form.Control type="text" id="itemTitle" placeholder="Write title here" />
+                            <Button type="submit">Publish this game</Button>
+                        </Form>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button onClick={this.props.onHide}>Close</Button>
@@ -145,8 +84,9 @@ class UserModal extends React.Component {
                     Information not found
                 </Modal>
             ); 
-    }
+        }
 }
+
 
 /**
  * This component looks up for an item, given its address, and displays the
@@ -164,7 +104,9 @@ class SearchBar extends React.Component {
                         userModalData: undefined,
                         itemModalData: undefined,
                         userTableData: undefined,
-                        itemTableData: undefined };
+                        itemTableData: undefined,
+                        deployModalShow: false,
+                        deployModalData: undefined };
     }
 
     async viewProfile(e) {
@@ -196,6 +138,15 @@ class SearchBar extends React.Component {
 
         this.setState({ userModalShow: true, userModalData: data, userTableData: userTableData });
     }
+
+
+    async deployItem(e) {
+
+        e.preventDefault();
+
+        this.setState({ deployModalShow: true, deployModalData: 11111 });
+    }
+
 
     async searchItem(e) {
 
@@ -250,12 +201,22 @@ class SearchBar extends React.Component {
 
     render() {
 
-        let itemModalClose = () => this.setState({ itemModalShow: false, 
-                                                    itemModalData: undefined,
-                                                    itemTableData: undefined });
-        let userModalClose = () => this.setState({ userModalShow: false, 
-                                                    userModalData: undefined,
-                                                    userTableData: undefined });
+        let itemModalClose = () => this.setState({ 
+            itemModalShow: false, 
+            itemModalData: undefined,
+            itemTableData: undefined
+        });
+        let userModalClose = () => this.setState({ 
+            userModalShow: false, 
+            userModalData: undefined,
+            userTableData: undefined
+        });
+        let deployModalClose = () => this.setState({
+            deployModalShow: false,
+            deployModalData: undefined,
+        });
+    
+
         return (
             <div>
                 {/* Image + title */}
@@ -271,19 +232,21 @@ class SearchBar extends React.Component {
                         {' Boarderline '}
                     </Navbar.Brand>
 
-                    {/* Personal area link */}
                     {/* <Router> */}
                         {/* Render a Router where the app contains routes */}
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="mr-auto">
+                                {/* Personal area link */}
                                 <Nav.Link onClick={e => this.viewProfile(e)} variant="outline-light">Personal Area</Nav.Link>
+                                {/* Deploy Item link */}
+                                <Nav.Link onClick={e => this.deployItem(e)} variant="outline-light">Add a game to the inventory</Nav.Link>
                             </Nav>
-
                             {/* TODO FAI MEGLIO QUESTO */}
                             {/* <Route path="/userArea" component={Prova}></Route>  */}
-
                         </Navbar.Collapse>
                     {/* </Router> */}
+
+
 
                     
 
@@ -311,6 +274,13 @@ class SearchBar extends React.Component {
                             userTableData={this.state.userTableData}
                 />
 
+                <DeployModal 
+                    show={this.state.deployModalShow}
+                    onHide={deployModalClose}
+                    user={this.props.user}
+                    account={this.props.account}
+                    web3={this.props.web3}
+                />
 
 
             </div>

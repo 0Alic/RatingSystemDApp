@@ -143,6 +143,8 @@ class TableOfContents extends React.Component {
             </Col>
           </Row>
           
+          <hr />          
+          <h2>Available games</h2>
           <BootstrapTable keyField='address' data={ this.state.data } columns={ this.columns } />
         </div>
       );
