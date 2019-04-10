@@ -1,6 +1,7 @@
 import React from "react";
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal'
+import Form from 'react-bootstrap/Form';
 import BootstrapTable from 'react-bootstrap-table-next';
 
 
@@ -30,13 +31,28 @@ class UserModal extends React.Component {
         }];        
     }
 
+    async grantPermission(e, address) {
+
+        e.preventDefault();
+
+        const destUser = e.currentTarget[address].value;
+
+        if(destUser === "") {
+            alert("Empty field");
+            return;
+        }
+
+        const account = this.props.account;
+        const itemContract = this.props.itemContract;
+        const item = await itemContract.at(address);
+        await item.grantPermission(destUser, {from: account});
+    }
     
     render() {
 
         let data = this.props.data;
 
         if(data) {
-
 
             return (
                 <Modal
@@ -56,7 +72,18 @@ class UserModal extends React.Component {
                         {data["items"].map(o => {
                                 const name = o.name;
                                 const address = o.address;
-                                return (<p key={address}>{name}: {address}</p>);
+                                return (
+                                    <div key={address}>
+                                    <Form onSubmit={e => this.grantPermission(e, address)}>
+                                        <Form.Group>
+                                            <Form.Label>{name}: {address}</Form.Label>
+                                            <Form.Control type="text" id={address} placeholder="Type the address of user here" />
+                                        </Form.Group>
+                                        <Button type="submit">Grant Permissions to</Button>
+                                    </Form>
+                                    <hr/>
+                                    </div>
+                                );
                             })}
                         <h4>Items you rated:</h4>
                         <BootstrapTable keyField='block' data={ this.props.userTableData } columns={ this.columns } />

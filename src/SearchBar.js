@@ -218,6 +218,8 @@ class SearchBar extends React.Component {
 
                 <UserModal show={this.state.userModalShow}
                             onHide={userModalClose} 
+                            itemContract={this.props.itemContract}
+                            account={this.props.account}
                             user={this.props.user}
                             data={this.state.userModalData}
                             userTableData={this.state.userTableData}
