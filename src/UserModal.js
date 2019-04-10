@@ -37,6 +37,7 @@ class UserModal extends React.Component {
 
         if(data) {
 
+
             return (
                 <Modal
                     onHide={this.props.onHide}
@@ -52,10 +53,12 @@ class UserModal extends React.Component {
                     </Modal.Header>
                     <Modal.Body>
                         <h4>Your items:</h4>
-                        {data["items"].map(i => {
-                                return (<p key={i}>{i}</p>);
+                        {data["items"].map(o => {
+                                const name = o.name;
+                                const address = o.address;
+                                return (<p key={address}>{name}: {address}</p>);
                             })}
-                        <h4>Rating table:</h4>
+                        <h4>Items you rated:</h4>
                         <BootstrapTable keyField='block' data={ this.props.userTableData } columns={ this.columns } />
                     </Modal.Body>
                     <Modal.Footer>

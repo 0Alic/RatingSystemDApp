@@ -56,9 +56,11 @@ class DeployModal extends React.Component {
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <h4>Choose a name</h4>
                         <Form onSubmit={e => this.createItem(e)}>
-                            <Form.Control type="text" id="itemTitle" placeholder="Write title here" />
+                            <Form.Group>
+                                <Form.Label>Title</Form.Label>
+                                <Form.Control type="text" id="itemTitle" placeholder="Write title here" />
+                            </Form.Group>
                             <Button type="submit">Publish this game</Button>
                         </Form>
                     </Modal.Body>

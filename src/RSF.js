@@ -114,7 +114,7 @@ class RSF extends Component {
                     {/* Here show the current Eth account */}
                     <Row>
                         <Col>
-                            Account: {this.props.account}
+                            Ethereum Account: {this.props.account}
                         </Col>
                     </Row>
 

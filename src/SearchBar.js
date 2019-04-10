@@ -41,17 +41,41 @@ class SearchBar extends React.Component {
         // Load user information
         const user = this.props.user;
         const web3 = this.props.web3;
+        const itemContract = this.props.itemContract;
+
         let data = {}
         let promises = []
         let ratings = []
         let userTableData = [];
+        let itemsAddr = [];
+        let items = [];
+        let itemName = [];
 
         promises.push(user.name());
         promises.push(user.getItems());
         promises.push(user.getAllRatings());
 
-        [data["name"], data["items"], ratings] = await Promise.all(promises);
+        [data["name"], itemsAddr, ratings] = await Promise.all(promises);
         data["name"] = web3.utils.toUtf8(data["name"]);
+
+        // Load item data
+        itemsAddr.forEach(address => {
+            items.push(itemContract.at(address));
+        });
+        
+        items = await Promise.all(items);
+
+        data["items"] = [];
+        items.forEach(item => {
+            itemName.push(item.name());
+        });
+
+        itemName = await Promise.all(itemName);
+
+        itemName.forEach((n, i) => {
+            data["items"].push({name: web3.utils.toUtf8(n),
+                address: items[i].address});
+        });
 
         ratings._scores.forEach((s, i) => {
             let o = {};

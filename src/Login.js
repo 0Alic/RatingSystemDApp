@@ -13,7 +13,8 @@ class Login extends Component {
 
         this.state = {
             user: undefined,
-            name: ""
+            name: "",
+            address: ""
         }
     }
 
@@ -21,12 +22,14 @@ class Login extends Component {
 
         const user = this.props.user;
         let name = "";
+        let userAddress = "";
 
         if(user) {
             name = await user.name(); 
+            userAddress = user.address;
         }
 
-        this.setState({ name: this.props.web3.utils.toUtf8(name), user: user });
+        this.setState({ name: this.props.web3.utils.toUtf8(name), user: user, address: userAddress });
     }
 
 
@@ -47,6 +50,7 @@ class Login extends Component {
             return(
                 <div>
                     <h2>Welcome back {this.state.name}!</h2>
+                    <p>Your User address: {this.state.address}</p>
                 </div>
             );
     }
