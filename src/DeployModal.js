@@ -13,6 +13,7 @@ class DeployModal extends React.Component {
     constructor(props) {
         super(props);
         this.i = 0; // to Suppress warning
+        // TODO fare i bind dei listener tutti i component che non  lo fanno
     }
 
     async createItem(e) {

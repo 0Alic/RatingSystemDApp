@@ -2,6 +2,7 @@ import React from "react";
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form';
+import {Row, Col} from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 
 
@@ -68,7 +69,7 @@ class UserModal extends React.Component {
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <h4>Your items:</h4>
+                        <h2>Your items:</h2>
                         {data["items"].map(o => {
                                 const name = o.name;
                                 const address = o.address;
@@ -76,10 +77,16 @@ class UserModal extends React.Component {
                                     <div key={address}>
                                     <Form onSubmit={e => this.grantPermission(e, address)}>
                                         <Form.Group>
-                                            <Form.Label>{name}: {address}</Form.Label>
-                                            <Form.Control type="text" id={address} placeholder="Type the address of user here" />
+                                            <Form.Label><h4>{name}</h4> {address}</Form.Label>
                                         </Form.Group>
-                                        <Button type="submit">Grant Permissions to</Button>
+                                        <Form.Row>
+                                            <Col>
+                                                <Form.Control type="text" id={address} placeholder="Type the address of user here" />
+                                            </Col>
+                                            <Col>
+                                                <Button type="submit">Grant Permissions to</Button>
+                                            </Col>
+                                        </Form.Row>
                                     </Form>
                                     <hr/>
                                     </div>
