@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Button, Form, Col } from 'react-bootstrap';
+import InputForm from './InputForm.js';
 
 /**
  * This component should display a welcome message to the user if registered
@@ -10,6 +11,8 @@ class Login extends Component {
 
     constructor(props) {
         super(props);
+
+        this.createUser = this.createUser.bind(this);
 
         this.state = {
             user: undefined,
@@ -66,7 +69,9 @@ class Login extends Component {
             return(
                 <div>
                     <h4>Not registerd? Subscribe now!</h4>
-                    <Form onSubmit={e => this.createUser(e)}>
+                    <InputForm onSubmit={this.createUser} label="Choose a nickname" placeholder="Write nickname here" buttonText="Register to Boarderline!" id="userName"/>
+
+                    {/* <Form onSubmit={e => this.createUser(e)}>
                             <Form.Group>
                                 <Form.Label>Choose a nickname</Form.Label>
                             </Form.Group>
@@ -78,7 +83,7 @@ class Login extends Component {
                                     <Button type="submit">Register to Boarderline!</Button>
                                 </Col>
                             </Form.Row>
-                        </Form>
+                        </Form> */}
                 </div>
             );
 

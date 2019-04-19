@@ -2,6 +2,7 @@ import React from "react";
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal'
+import InputForm from './InputForm.js';
 
 /**
  * This component shows the form to upload a new item
@@ -12,8 +13,8 @@ class DeployModal extends React.Component {
 
     constructor(props) {
         super(props);
-        this.i = 0; // to Suppress warning
-        // TODO fare i bind dei listener tutti i component che non  lo fanno
+
+        this.createItem = this.createItem.bind(this);
     }
 
     async createItem(e) {
@@ -57,13 +58,14 @@ class DeployModal extends React.Component {
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form onSubmit={e => this.createItem(e)}>
+                        <InputForm onSubmit={this.createItem} buttonText="Publish this game" placeholder="Write title here" label={<h4>Title</h4>} id="itemTitle" />
+                        {/* <Form onSubmit={e => this.createItem(e)}>
                             <Form.Group>
                                 <Form.Label>Title</Form.Label>
                                 <Form.Control type="text" id="itemTitle" placeholder="Write title here" />
                             </Form.Group>
                             <Button type="submit">Publish this game</Button>
-                        </Form>
+                        </Form> */}
                     </Modal.Body>
                     <Modal.Footer>
                         <Button onClick={this.props.onHide}>Close</Button>

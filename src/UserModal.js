@@ -4,7 +4,7 @@ import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form';
 import {Col} from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
-
+import InputForm from './InputForm.js';
 
 /**
  * This component is a modal showing the information concerning an user
@@ -14,6 +14,8 @@ class UserModal extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.grantPermission = this.grantPermission.bind(this);
 
         this.columns = [{
             dataField: 'rated',
@@ -75,7 +77,14 @@ class UserModal extends React.Component {
                                 const address = o.address;
                                 return (
                                     <div key={address}>
-                                    <Form onSubmit={e => this.grantPermission(e, address)}>
+                                    <InputForm onSubmit={e => this.grantPermission(e, address)}
+                                                placeholder="Type the address of user here"
+                                                buttonText="Grant Permissions to"
+                                                label={<div><h4>{name}</h4> {address}</div>}
+                                                id={address}
+                                    />
+
+                                    {/* <Form onSubmit={e => this.grantPermission(e, address)}>
                                         <Form.Group>
                                             <Form.Label><h4>{name}</h4> {address}</Form.Label>
                                         </Form.Group>
@@ -87,7 +96,7 @@ class UserModal extends React.Component {
                                                 <Button type="submit">Grant Permissions to</Button>
                                             </Col>
                                         </Form.Row>
-                                    </Form>
+                                    </Form> */}
                                     <hr/>
                                     </div>
                                 );
