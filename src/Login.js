@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Button} from 'react-bootstrap';
+import {Button, Form, Col } from 'react-bootstrap';
 
 /**
  * This component should display a welcome message to the user if registered
@@ -18,6 +18,7 @@ class Login extends Component {
         }
     }
 
+
     async componentWillMount() {
 
         const user = this.props.user;
@@ -27,9 +28,34 @@ class Login extends Component {
         if(user) {
             name = await user.name(); 
             userAddress = user.address;
+            name = this.props.web3.utils.toUtf8(name)
         }
 
-        this.setState({ name: this.props.web3.utils.toUtf8(name), user: user, address: userAddress });
+        this.setState({ name: name, user: user, address: userAddress });
+    }
+
+
+    async createUser(e) {
+
+        e.preventDefault();
+
+        const userName = e.currentTarget.userName.value;
+        const rsf = this.props.rsf;
+        const web3 = this.props.web3;
+        const account = this.props.account;
+
+        if(userName === "") {
+            alert("Blank game title");
+            return;
+        }
+
+        if(userName.length > 32) {
+            alert("Game title too long");
+            return;
+        }
+
+        // Deploy Item
+        await rsf.createUser(web3.utils.fromUtf8(userName), {from: account});
     }
 
 
@@ -39,8 +65,20 @@ class Login extends Component {
             // User not registered and/or still loading information
             return(
                 <div>
-                    Not registerd? Subscribe now!
-                    {/* TODO Aggiungere bottone di iscrizione */}
+                    <h4>Not registerd? Subscribe now!</h4>
+                    <Form onSubmit={e => this.createUser(e)}>
+                            <Form.Group>
+                                <Form.Label>Choose a nickname</Form.Label>
+                            </Form.Group>
+                            <Form.Row>
+                                <Col>
+                                    <Form.Control type="text" id="userName" placeholder="Write nickname here" />
+                                </Col>
+                                <Col>
+                                    <Button type="submit">Register to Boarderline!</Button>
+                                </Col>
+                            </Form.Row>
+                        </Form>
                 </div>
             );
 

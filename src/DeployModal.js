@@ -20,7 +20,6 @@ class DeployModal extends React.Component {
 
         e.preventDefault();
 
-        console.log(e.currentTarget)
         const title = e.currentTarget.itemTitle.value;
         const user = this.props.user;
         const web3 = this.props.web3;

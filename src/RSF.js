@@ -124,8 +124,9 @@ class RSF extends Component {
                     <Row>
                         <Col>
                             <Login 
+                                rsf={this.props.rsf}
                                 user={user}
-                                account={this.state.account} 
+                                account={this.props.account} 
                                 userContract={userContract} 
                                 web3={web3} 
 
@@ -136,14 +137,14 @@ class RSF extends Component {
                     <hr />
 
                     {/* Here the table to show the items */}
-                    <TableOfContents
+                    {/* <TableOfContents
                         user={user}
                         userContract={userContract}
                         registry={this.registry}
                         items={this.state.items}
                         web3={web3}
                         provider={provider}
-                    />
+                    /> */}
                 </div>
             );
         }

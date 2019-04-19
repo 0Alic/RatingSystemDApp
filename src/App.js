@@ -77,7 +77,9 @@ class App extends Component {
       const address = await this.rsf.getMyUserContract({from: account});
       this.user = undefined;
 
-      if(address !== 0x0)
+      const emptyAddress = /^0x0+$/.test(address);  // Check if address is empty
+      
+      if(!emptyAddress)
           this.user = await this.userContract.at(address);
 
       this.setState({ account: account });
@@ -86,7 +88,8 @@ class App extends Component {
 
   render() {
 
-    if(this.user)
+    if(this.state.account)
+    
       return(
 
         <div>
@@ -123,7 +126,7 @@ class App extends Component {
         </div>
       );
       else
-        return(<div>Loading...</div>)
+        return(<div>You need Metamask to run this app</div>)
   }
 }
 

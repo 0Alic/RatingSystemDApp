@@ -4,9 +4,6 @@ import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import Navbar from 'react-bootstrap/Navbar';
-// import Modal from 'react-bootstrap/Modal'
-// import BootstrapTable from 'react-bootstrap-table-next';
-// import AddRateForm from './AddRateForm.js';
 import Nav from 'react-bootstrap/Nav';
 import ItemModal from './ItemModal.js';
 import UserModal from './UserModal.js';
@@ -145,11 +142,11 @@ class SearchBar extends React.Component {
             console.log(e)
             alert("Invalid address");
         }
-
     }
 
     render() {
 
+        // Functions to close the modals
         let itemModalClose = () => this.setState({ 
             itemModalShow: false, 
             itemModalData: undefined,
@@ -165,6 +162,32 @@ class SearchBar extends React.Component {
             deployModalData: undefined,
         });
     
+        let userModal, deployModal;
+        let userLink, deployLink;
+
+        if(this.props.user) {
+            // If user is registered, show modals
+            userModal = <UserModal show={this.state.userModalShow}
+                            onHide={userModalClose} 
+                            itemContract={this.props.itemContract}
+                            account={this.props.account}
+                            user={this.props.user}
+                            data={this.state.userModalData}
+                            userTableData={this.state.userTableData}
+                        />;
+
+            deployModal = <DeployModal 
+                            show={this.state.deployModalShow}
+                            onHide={deployModalClose}
+                            user={this.props.user}
+                            account={this.props.account}
+                            web3={this.props.web3}
+                        />;
+
+            // And links
+            userLink = <Nav.Link onClick={e => this.viewProfile(e)} variant="outline-light">Personal Area</Nav.Link>;
+            deployLink = <Nav.Link onClick={e => this.deployItem(e)} variant="outline-light">Add a game to the inventory</Nav.Link>;
+        }
 
         return (
             <div>
@@ -185,19 +208,13 @@ class SearchBar extends React.Component {
                         {/* Render a Router where the app contains routes */}
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="mr-auto">
-                                {/* Personal area link */}
-                                <Nav.Link onClick={e => this.viewProfile(e)} variant="outline-light">Personal Area</Nav.Link>
-                                {/* Deploy Item link */}
-                                <Nav.Link onClick={e => this.deployItem(e)} variant="outline-light">Add a game to the inventory</Nav.Link>
+                                {userLink}
+                                {deployLink}
                             </Nav>
                             {/* TODO FAI MEGLIO QUESTO */}
                             {/* <Route path="/userArea" component={Prova}></Route>  */}
                         </Navbar.Collapse>
                     {/* </Router> */}
-
-
-
-                    
 
                     {/* Search item */}
                     <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
@@ -216,23 +233,9 @@ class SearchBar extends React.Component {
                             account={this.props.account}
                 />
 
-                <UserModal show={this.state.userModalShow}
-                            onHide={userModalClose} 
-                            itemContract={this.props.itemContract}
-                            account={this.props.account}
-                            user={this.props.user}
-                            data={this.state.userModalData}
-                            userTableData={this.state.userTableData}
-                />
+                {userModal}
 
-                <DeployModal 
-                    show={this.state.deployModalShow}
-                    onHide={deployModalClose}
-                    user={this.props.user}
-                    account={this.props.account}
-                    web3={this.props.web3}
-                />
-
+                {deployModal}
 
             </div>
         );
