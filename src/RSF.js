@@ -5,6 +5,7 @@ import Container  from 'react-bootstrap/Container';
 import Row  from 'react-bootstrap/Row';
 import Col  from 'react-bootstrap/Col';
 import TableOfContents from './TableOfContents.js';
+import TableOfUsers from './TableOfUsers.js';
 
 /**
  * This component is in charge to 
@@ -143,6 +144,11 @@ class RSF extends Component {
                         items={this.state.items}
                         web3={web3}
                         provider={provider}
+                    />
+
+                    <TableOfUsers 
+                        users={this.state.users}
+                        web3={web3}
                     />
                 </div>
             );
