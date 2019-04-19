@@ -2,7 +2,7 @@ import React from "react";
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form';
-import {Row, Col} from 'react-bootstrap';
+import {Col} from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 
 

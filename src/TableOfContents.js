@@ -66,7 +66,6 @@ class TableOfContents extends React.Component {
       const registry = this.props.registry;
       const items = this.props.items;
       const web3 = this.props.web3;
-      const userContract = this.props.userContract;
       const user = this.props.user;
 
       // Retrieve RatingComputer instance
@@ -81,16 +80,19 @@ class TableOfContents extends React.Component {
       let p_scores = [];
       let p_permissions = [];
       let p_policies = [];
+      let address = "0x0000000000000000000000000000000000000000";
+      if (user) address = user.address;
+        
 
       items.forEach((i) => {
           
         p_titles.push(i.name());
         p_scores.push(i.computeScore(computerAddress));
-        p_permissions.push(i.checkForPermission(user.address));
-        p_policies.push(i.getPolicy(user.address));
+        p_permissions.push(i.checkForPermission(address));
+        p_policies.push(i.getPolicy(address));
       });
 
-        // Arrays with results
+      // Arrays with results
       let titles = await Promise.all(p_titles); // Names in bytes32
       let scores = await Promise.all(p_scores); // Scores
       let permissions = await Promise.all(p_permissions); // 0 yes, 1 no, 2 out of date
